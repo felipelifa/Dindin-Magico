@@ -370,7 +370,8 @@ const Index = () => {
            <Button
   onClick={() => setShowVoiceRecorder(true)}
   className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
->
+> 
+
   <VoiceRecorderButton />
 
           <Button 
