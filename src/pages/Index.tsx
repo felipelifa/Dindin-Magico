@@ -485,11 +485,6 @@ const saveExpenseFromTranscript = async (transcriptToSave) => {
   <Mic className="w-6 h-6 mr-2" />
   {isListening ? "Gravando..." : "Anotação por voz"}
 </Button>
-{isListening && (
-  <div className="mt-2 text-purple-700 font-bold">Gravando... Fale agora!</div>
-)}
-{transcript && (
- 
 
           <Button 
             onClick={() => setShowExpenseForm(true)}
