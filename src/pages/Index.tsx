@@ -19,6 +19,7 @@ import VoiceRecorder from '@/components/VoiceRecorder';
 import { useToast } from '@/hooks/use-toast';
 import { Settings } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { useRef } from 'react';
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -36,6 +37,9 @@ const Index = () => {
   const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const { toast } = useToast();
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -183,6 +187,59 @@ const Index = () => {
       setLoading(false);
     }
   };
+
+  const startListening = () => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    toast({
+      title: "Reconhecimento de voz não suportado",
+      description: "Seu navegador não suporta reconhecimento de voz.",
+      variant: "destructive"
+    });
+    return;
+  }
+  recognitionRef.current = new SpeechRecognition();
+  recognitionRef.current.continuous = true;
+  recognitionRef.current.interimResults = true;
+  recognitionRef.current.lang = 'pt-BR';
+
+  recognitionRef.current.onresult = (event: any) => {
+    let finalTranscript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript;
+      }
+    }
+    if (finalTranscript) {
+      setTranscript(prev => prev + finalTranscript + ' ');
+    }
+  };
+
+  recognitionRef.current.onerror = () => {
+    setIsListening(false);
+  };
+
+  recognitionRef.current.onend = () => {
+    setIsListening(false);
+  };
+
+  setTranscript('');
+  setIsListening(true);
+  recognitionRef.current.start();
+  toast({
+    title: "Gravando...",
+    description: "Fale sua anotação. Clique em Parar para finalizar.",
+  });
+};
+
+const stopListening = () => {
+  setIsListening(false);
+  recognitionRef.current?.stop();
+  toast({
+    title: "Transcrição finalizada",
+    description: "Confira abaixo o texto reconhecido.",
+  });
+};
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -368,14 +425,18 @@ const Index = () => {
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
           
-          <Button 
-          onClick={() => setShowVoiceRecorder(true)}
-           className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+         <Button
+           onClick={isListening ? stopListening : startListening}
+           className={`h-16 ${isListening
+            ? "bg-red-600 hover:bg-red-700"
+         : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+          } text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl`}
           >
-            <Mic className="w-6 h-6 mr-2" />
-            Anotação por voz
-            </Button>
-            
+        <Mic className="w-6 h-6 mr-2" />
+        {isListening ? "Parar" : "Anotação por voz"}
+        </Button>
+
+
           <Button 
             onClick={() => setShowExpenseForm(true)}
             className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
@@ -413,6 +474,15 @@ const Index = () => {
             Me Motiva! ⚡
           </Button>
         </div>
+
+            {isListening && <div className="mt-4 text-purple-700 font-bold">Gravando... Fale agora!</div>}
+{transcript && (
+  <div className="mt-4 p-4 bg-gray-100 rounded-lg text-gray-800">
+    <span className="font-semibold">Transcrição:</span><br />
+    {transcript}
+  </div>
+)}
+
 
         {/* Monthly Budget Section */}
         {currentMonthBudget && (
