@@ -39,7 +39,7 @@ const Index = () => {
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -86,6 +86,109 @@ const Index = () => {
     },
     enabled: !!user
   });
+
+  const startListening = () => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    toast({
+      title: "Reconhecimento de voz não suportado",
+      description: "Tente usar Chrome, Safari ou Edge",
+      variant: "destructive"
+    });
+    return;
+  }
+  recognitionRef.current = new SpeechRecognition();
+  recognitionRef.current.lang = 'pt-BR';
+  recognitionRef.current.interimResults = false;
+  setTranscript('');
+  setIsListening(true);
+
+  recognitionRef.current.onresult = async (event) => {
+    const t = Array.from(event.results)
+      .map(result => result[0])
+      .map(result => result.transcript)
+      .join('');
+    setTranscript(t);
+
+    // Salvar como gasto automático!
+    await saveExpenseFromTranscript(t);
+    setIsListening(false);
+  };
+
+  recognitionRef.current.onend = () => {
+    setIsListening(false);
+  };
+
+  recognitionRef.current.start();
+};
+
+const stopListening = () => {
+  if (recognitionRef.current) {
+    recognitionRef.current.stop();
+    setIsListening(false);
+  }
+};
+
+const saveExpenseFromTranscript = async (transcriptToSave) => {
+  if (!transcriptToSave.trim()) return;
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Usuário não encontrado');
+
+    const text = transcriptToSave.toLowerCase();
+    let amount = 0;
+    let description = transcriptToSave;
+    let category = 'outros';
+
+    const amountMatch = text.match(/(?:r\$\s*)?(\d+(?:[,\.]\d{2})?)/);
+    if (amountMatch) {
+      amount = parseFloat(amountMatch[1].replace(',', '.'));
+    }
+
+    if (text.includes('comida') || text.includes('almoço') || text.includes('jantar') || text.includes('restaurante')) {
+      category = 'alimentacao';
+    } else if (text.includes('uber') || text.includes('taxi') || text.includes('ônibus') || text.includes('transporte')) {
+      category = 'transporte';
+    } else if (text.includes('cinema') || text.includes('diversão') || text.includes('lazer')) {
+      category = 'lazer';
+    } else if (text.includes('farmácia') || text.includes('médico') || text.includes('saúde')) {
+      category = 'saude';
+    }
+
+    if (amount > 0) {
+      const { error } = await supabase
+        .from('expenses')
+        .insert({
+          user_id: user.id,
+          amount,
+          description: `Nota de voz: ${description}`,
+          category,
+          date: new Date().toISOString().split('T')[0],
+          emoji: '🎤'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Gasto salvo! 💰",
+        description: `R$ ${amount.toFixed(2)} registrado com sucesso`
+      });
+    } else {
+      toast({
+        title: "Valor não identificado",
+        description: "Não consegui identificar o valor na nota de voz",
+        variant: "destructive"
+      });
+    }
+  } catch (error) {
+    toast({
+      title: "Erro ao salvar gasto",
+      description: "Tente novamente",
+      variant: "destructive"
+    });
+  }
+};
 
   const { data: goals = [] } = useQuery({
     queryKey: ['goals', user?.id],
@@ -187,59 +290,6 @@ const Index = () => {
       setLoading(false);
     }
   };
-
-  const startListening = () => {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    toast({
-      title: "Reconhecimento de voz não suportado",
-      description: "Seu navegador não suporta reconhecimento de voz.",
-      variant: "destructive"
-    });
-    return;
-  }
-  recognitionRef.current = new SpeechRecognition();
-  recognitionRef.current.continuous = true;
-  recognitionRef.current.interimResults = true;
-  recognitionRef.current.lang = 'pt-BR';
-
-  recognitionRef.current.onresult = (event: any) => {
-    let finalTranscript = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) {
-        finalTranscript += event.results[i][0].transcript;
-      }
-    }
-    if (finalTranscript) {
-      setTranscript(prev => prev + finalTranscript + ' ');
-    }
-  };
-
-  recognitionRef.current.onerror = () => {
-    setIsListening(false);
-  };
-
-  recognitionRef.current.onend = () => {
-    setIsListening(false);
-  };
-
-  setTranscript('');
-  setIsListening(true);
-  recognitionRef.current.start();
-  toast({
-    title: "Gravando...",
-    description: "Fale sua anotação. Clique em Parar para finalizar.",
-  });
-};
-
-const stopListening = () => {
-  setIsListening(false);
-  recognitionRef.current?.stop();
-  toast({
-    title: "Transcrição finalizada",
-    description: "Confira abaixo o texto reconhecido.",
-  });
-};
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -426,16 +476,20 @@ const stopListening = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
           
          <Button
-           onClick={isListening ? stopListening : startListening}
-           className={`h-16 ${isListening
-            ? "bg-red-600 hover:bg-red-700"
-         : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
-          } text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl`}
-          >
-        <Mic className="w-6 h-6 mr-2" />
-        {isListening ? "Parar" : "Anotação por voz"}
-        </Button>
-
+  onClick={isListening ? stopListening : startListening}
+  className={`h-16 ${isListening
+    ? "bg-red-600 hover:bg-red-700"
+    : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+  } text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl`}
+>
+  <Mic className="w-6 h-6 mr-2" />
+  {isListening ? "Gravando..." : "Anotação por voz"}
+</Button>
+{isListening && (
+  <div className="mt-2 text-purple-700 font-bold">Gravando... Fale agora!</div>
+)}
+{transcript && (
+ 
 
           <Button 
             onClick={() => setShowExpenseForm(true)}
@@ -474,15 +528,6 @@ const stopListening = () => {
             Me Motiva! ⚡
           </Button>
         </div>
-
-            {isListening && <div className="mt-4 text-purple-700 font-bold">Gravando... Fale agora!</div>}
-{transcript && (
-  <div className="mt-4 p-4 bg-gray-100 rounded-lg text-gray-800">
-    <span className="font-semibold">Transcrição:</span><br />
-    {transcript}
-  </div>
-)}
-
 
         {/* Monthly Budget Section */}
         {currentMonthBudget && (
