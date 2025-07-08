@@ -14,7 +14,6 @@ import WelcomeModal from '@/components/WelcomeModal';
 import CelebrationModal from '@/components/CelebrationModal';
 import MonthlyBudgetForm from '@/components/MonthlyBudgetForm';
 import MonthlyBudgetCard from '@/components/MonthlyBudgetCard';
-import VoiceNoteRecorder from '@/components/VoiceNoteRecorder';
 import VoiceRecorder from '@/components/VoiceRecorder';
 import { useToast } from '@/hooks/use-toast';
 import { Settings } from 'lucide-react';
@@ -34,7 +33,6 @@ const Index = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
-  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -367,6 +365,13 @@ const Index = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+           <Card>
+  <CardContent>
+    <VoiceRecorder />
+  </CardContent>
+</Card>
+
+
           <Button 
             onClick={() => setShowExpenseForm(true)}
             className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
@@ -389,14 +394,6 @@ const Index = () => {
           >
             <Calendar className="w-6 h-6 mr-2" />
             Orçamento Mensal 📊
-          </Button>
-
-          <Button 
-            onClick={() => setShowVoiceRecorder(true)}
-            className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-          >
-            <Mic className="w-6 h-6 mr-2" />
-            Nota Gratuita 🎤
           </Button>
 
           <Button 
@@ -463,10 +460,7 @@ const Index = () => {
           isOpen={showBudgetForm} 
           onClose={() => setShowBudgetForm(false)} 
         />
-        <VoiceRecorder
-          isOpen={showVoiceRecorder}
-          onClose={() => setShowVoiceRecorder(false)}
-        />
+       
         <WelcomeModal 
           isOpen={showWelcome} 
           onClose={() => setShowWelcome(false)} 
