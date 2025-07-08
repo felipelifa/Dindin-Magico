@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -211,7 +212,7 @@ const VoiceNoteRecorder = ({ isOpen, onClose }: VoiceNoteRecorderProps) => {
           .insert({
             user_id: user.id,
             amount,
-            description: Nota de voz: ${description},
+            description: `Nota de voz: ${description}`,
             category,
             date: new Date().toISOString().split('T')[0],
             emoji: '🎤'
@@ -221,7 +222,7 @@ const VoiceNoteRecorder = ({ isOpen, onClose }: VoiceNoteRecorderProps) => {
 
         toast({
           title: "Gasto salvo! 💰",
-          description: R$ ${amount.toFixed(2)} registrado com sucesso
+          description: `R$ ${amount.toFixed(2)} registrado com sucesso`
         });
 
         queryClient.invalidateQueries({ queryKey: ['expenses'] });
@@ -270,7 +271,7 @@ const VoiceNoteRecorder = ({ isOpen, onClose }: VoiceNoteRecorderProps) => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return ${mins}:${secs.toString().padStart(2, '0')};
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
