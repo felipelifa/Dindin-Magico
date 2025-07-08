@@ -14,11 +14,11 @@ import WelcomeModal from '@/components/WelcomeModal';
 import CelebrationModal from '@/components/CelebrationModal';
 import MonthlyBudgetForm from '@/components/MonthlyBudgetForm';
 import MonthlyBudgetCard from '@/components/MonthlyBudgetCard';
+import VoiceNoteRecorder from '@/components/VoiceNoteRecorder';
 import VoiceRecorder from '@/components/VoiceRecorder';
 import { useToast } from '@/hooks/use-toast';
 import { Settings } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import VoiceRecorderButton from '@/components/VoiceRecorderButton';
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -34,8 +34,8 @@ const Index = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
-  const { toast } = useToast();
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -164,7 +164,7 @@ const Index = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`
+            emailRedirectTo: ${window.location.origin}/
           }
         });
         if (error) throw error;
@@ -367,14 +367,6 @@ const Index = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-           <Button
-  onClick={() => setShowVoiceRecorder(true)}
-  className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
->
-  <Mic className="w-6 h-6 mr-2" />
-  Nota Gratuita 🎤
-</Button>
-
           <Button 
             onClick={() => setShowExpenseForm(true)}
             className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
@@ -400,6 +392,14 @@ const Index = () => {
           </Button>
 
           <Button 
+            onClick={() => setShowVoiceRecorder(true)}
+            className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <Mic className="w-6 h-6 mr-2" />
+            Nota Gratuita 🎤
+          </Button>
+
+          <Button 
             className="h-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
             onClick={() => {
               setCelebrationMessage("Você é incrível! Continue assim! 🎉✨");
@@ -410,11 +410,6 @@ const Index = () => {
             Me Motiva! ⚡
           </Button>
         </div>
-           
-            <VoiceRecorder
-  isOpen={showVoiceRecorder}
-  onClose={() => setShowVoiceRecorder(false)}
-/>
 
         {/* Monthly Budget Section */}
         {currentMonthBudget && (
@@ -468,7 +463,10 @@ const Index = () => {
           isOpen={showBudgetForm} 
           onClose={() => setShowBudgetForm(false)} 
         />
-       
+        <VoiceRecorder
+          isOpen={showVoiceRecorder}
+          onClose={() => setShowVoiceRecorder(false)}
+        />
         <WelcomeModal 
           isOpen={showWelcome} 
           onClose={() => setShowWelcome(false)} 
