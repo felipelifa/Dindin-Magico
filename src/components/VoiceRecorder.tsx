@@ -154,7 +154,7 @@ const VoiceRecorder = ({ isOpen, onClose }: VoiceRecorderProps) => {
           .insert({
             user_id: user.id,
             amount,
-            description: Nota de voz: ${description},
+            description: `Nota de voz: ${description}`,
             category,
             date: new Date().toISOString().split('T')[0],
             emoji: '🎤'
@@ -164,7 +164,7 @@ const VoiceRecorder = ({ isOpen, onClose }: VoiceRecorderProps) => {
 
         toast({
           title: "Gasto salvo! 💰",
-          description: R$ ${amount.toFixed(2)} registrado com sucesso
+          description: `R$ ${amount.toFixed(2)} registrado com sucesso`
         });
 
         queryClient.invalidateQueries({ queryKey: ['expenses'] });
@@ -238,11 +238,11 @@ const VoiceRecorder = ({ isOpen, onClose }: VoiceRecorderProps) => {
                 onMouseUp={handleMouseUp}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
-                className={${
+                className={`${
                   isListening 
                     ? "bg-red-500 hover:bg-red-600 animate-pulse" 
                     : "bg-gray-500 hover:bg-gray-600"
-                } text-white rounded-full w-20 h-20 text-lg font-bold select-none}
+                } text-white rounded-full w-20 h-20 text-lg font-bold select-none`}
                 style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
               >
                 {isListening ? <MicOff className="w-10 h-10" /> : <Mic className="w-10 h-10" />}
