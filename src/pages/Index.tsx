@@ -285,31 +285,32 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-0">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-              DinDinMágico ✨
-            </h1>
-            <p className="text-gray-600 mt-1">{getMotivationalMessage()}</p>
-          </div>
-          <div className="flex gap-3">
-            <Button 
-              onClick={() => window.location.href = '/settings'}
-              variant="outline"
-              className="border-gray-300 hover:bg-gray-50"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Configurações
-            </Button>
-            <Button 
-              onClick={handleSignOut}
-              variant="outline"
-              className="border-gray-300 hover:bg-gray-50"
-            >
-              Sair
-            </Button>
-          </div>
-        </div>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 w-full bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-0">
+  <div>
+    <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent break-words">
+      DinDinMágico ✨
+    </h1>
+    <p className="text-gray-600 mt-1">{getMotivationalMessage()}</p>
+  </div>
+  <div className="flex gap-2 justify-end">
+    <Button
+      onClick={() => window.location.href = '/settings'}
+      variant="outline"
+      className="border-gray-300 hover:bg-gray-50 min-w-[100px] py-1 px-2 text-xs sm:text-base"
+    >
+      <Settings className="w-4 h-4 mr-1" />
+      Configurações
+    </Button>
+    <Button
+      onClick={handleSignOut}
+      variant="outline"
+      className="border-gray-300 hover:bg-gray-50 min-w-[60px] py-1 px-2 text-xs sm:text-base"
+    >
+      Sair
+    </Button>
+  </div>
+</div>
+
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-3 gap-6">
