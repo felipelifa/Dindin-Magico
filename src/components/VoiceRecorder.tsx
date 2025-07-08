@@ -1,16 +1,9 @@
-
 import { useState, useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
-
-interface VoiceRecorderProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 declare global {
   interface Window {
@@ -19,13 +12,13 @@ declare global {
   }
 }
 
-const VoiceRecorder = ({ isOpen, onClose }: VoiceRecorderProps) => {
+const VoiceRecorder = () => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isSupported, setIsSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
   const isHoldingRef = useRef(false);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -86,10 +79,10 @@ const VoiceRecorder = ({ isOpen, onClose }: VoiceRecorderProps) => {
     setIsListening(true);
     isHoldingRef.current = true;
     recognitionRef.current?.start();
-    
+
     toast({
       title: "Gravação iniciada! 🎤",
-      description: "Mantenha pressionado e fale..."
+      description: "Fale normalmente, sua nota de gasto será transcrita..."
     });
   };
 
@@ -97,7 +90,7 @@ const VoiceRecorder = ({ isOpen, onClose }: VoiceRecorderProps) => {
     setIsListening(false);
     isHoldingRef.current = false;
     recognitionRef.current?.stop();
-    
+
     if (transcript.trim()) {
       toast({
         title: "Gravação finalizada! ✅",
@@ -170,7 +163,6 @@ const VoiceRecorder = ({ isOpen, onClose }: VoiceRecorderProps) => {
 
         queryClient.invalidateQueries({ queryKey: ['expenses'] });
         handleReset();
-        onClose();
       } else {
         toast({
           title: "Valor não identificado",
@@ -197,98 +189,71 @@ const VoiceRecorder = ({ isOpen, onClose }: VoiceRecorderProps) => {
 
   if (!isSupported) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center text-red-600">
-              Recurso Não Disponível
-            </DialogTitle>
-          </DialogHeader>
-          <div className="text-center p-4">
-            <p className="text-gray-600 mb-4">
-              Seu navegador não suporta reconhecimento de voz. 
-              Tente usar Chrome, Safari ou Edge.
-            </p>
-            <Button onClick={onClose} className="w-full">
-              Fechar
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <div className="w-full max-w-md mx-auto p-6 bg-white rounded-2xl shadow-2xl my-6">
+        <h2 className="text-2xl font-bold text-center text-red-600 mb-2">
+          Recurso Não Disponível
+        </h2>
+        <p className="text-gray-600 mb-4 text-center">
+          Seu navegador não suporta reconhecimento de voz.<br />
+          Tente usar Chrome, Safari ou Edge.
+        </p>
+      </div>
     );
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-white border-0 shadow-2xl rounded-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Nota de Voz Gratuita 🎤
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6 mt-4">
-          <div className="flex flex-col items-center space-y-4">
-            <p className="text-sm text-gray-600 text-center">
-              {isListening ? "🔴 Gravando... Mantenha pressionado!" : "Pressione e segure o botão para gravar"}
-            </p>
-            
-            <div className="flex gap-3">
-              <Button
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleMouseUp}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-                className={`${
-                  isListening 
-                    ? "bg-red-500 hover:bg-red-600 animate-pulse" 
-                    : "bg-gray-500 hover:bg-gray-600"
-                } text-white rounded-full w-20 h-20 text-lg font-bold select-none`}
-                style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-              >
-                {isListening ? <MicOff className="w-10 h-10" /> : <Mic className="w-10 h-10" />}
-              </Button>
-            </div>
-            
-            <p className="text-xs text-gray-500 text-center">
-              Pressione e segure para gravar sua nota de gasto
-            </p>
-          </div>
-
-          {transcript && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Transcrição:</h4>
-              <p className="text-sm text-gray-700 mb-4">{transcript}</p>
-              
-              <Button
-                onClick={saveExpenseFromTranscript}
-                className="w-full bg-green-500 hover:bg-green-600 text-white"
-              >
-                Salvar como Gasto 💰
-              </Button>
-            </div>
-          )}
-
-          <div className="flex gap-3">
-            <Button
-              onClick={handleReset}
-              variant="outline"
-              className="flex-1 border-gray-300 hover:bg-gray-50 rounded-xl"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Limpar
-            </Button>
-            <Button
-              onClick={onClose}
-              variant="outline"
-              className="flex-1 border-gray-300 hover:bg-gray-50 rounded-xl"
-            >
-              Fechar
-            </Button>
-          </div>
+    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-2xl shadow-2xl my-6">
+      <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+        Nota de Voz Gratuita 🎤
+      </h2>
+      <div className="flex flex-col items-center space-y-4">
+        <p className="text-sm text-gray-600 text-center">
+          {isListening
+            ? "🔴 Gravando... Fale agora!"
+            : "Clique e segure o botão para gravar sua nota de gasto"}
+        </p>
+        <div className="flex gap-3">
+          <Button
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            className={
+              isListening
+                ? "bg-red-500 hover:bg-red-600 animate-pulse text-white rounded-full w-20 h-20"
+                : "bg-gray-500 hover:bg-gray-600 text-white rounded-full w-20 h-20"
+            }
+            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+          >
+            {isListening
+              ? <MicOff className="w-10 h-10" />
+              : <Mic className="w-10 h-10" />}
+          </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+        {transcript && (
+          <div className="bg-gray-50 p-4 rounded-lg mt-4 w-full">
+            <h4 className="font-medium mb-2">Transcrição:</h4>
+            <p className="text-sm text-gray-700 mb-4">{transcript}</p>
+            <Button
+              onClick={saveExpenseFromTranscript}
+              className="w-full bg-green-500 hover:bg-green-600 text-white"
+            >
+              Salvar como Gasto 💰
+            </Button>
+          </div>
+        )}
+        <div className="flex gap-3 mt-4 w-full">
+          <Button
+            onClick={handleReset}
+            variant="outline"
+            className="flex-1 border-gray-300 hover:bg-gray-50 rounded-xl"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Limpar
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 
