@@ -293,7 +293,7 @@ const Index = () => {
             </h1>
             <p className="text-gray-600 mt-1">{getMotivationalMessage()}</p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+          <div className="flex gap-3">
             <Button 
               onClick={() => window.location.href = '/settings'}
               variant="outline"
@@ -367,14 +367,13 @@ const Index = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-          
-         <Button
-  onClick={startListening}
-  className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 text-white ...">
-  <Mic className="w-6 h-6 mr-2" />
-  Anotação por voz
-</Button>
-
+            <Button 
+            onClick={() => setShowVoiceRecorder(true)}
+            className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <Mic className="w-6 h-6 mr-2" />
+            Anotação por voz 🎤
+          </Button>
 
           <Button 
             onClick={() => setShowExpenseForm(true)}
@@ -400,8 +399,7 @@ const Index = () => {
             Orçamento Mensal 📊
           </Button>
 
-
-
+        
           <Button 
             className="h-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
             onClick={() => {
