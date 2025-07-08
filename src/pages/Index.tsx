@@ -370,9 +370,10 @@ const Index = () => {
            <Button
   onClick={() => setShowVoiceRecorder(true)}
   className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-> 
-
-  <VoiceRecorderButton />
+>
+  <Mic className="w-6 h-6 mr-2" />
+  Nota Gratuita 🎤
+</Button>
 
           <Button 
             onClick={() => setShowExpenseForm(true)}
@@ -410,7 +411,11 @@ const Index = () => {
           </Button>
         </div>
            
-        
+            <VoiceRecorder
+  isOpen={showVoiceRecorder}
+  onClose={() => setShowVoiceRecorder(false)}
+/>
+
         {/* Monthly Budget Section */}
         {currentMonthBudget && (
           <MonthlyBudgetCard 
