@@ -367,6 +367,15 @@ const Index = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+          
+          <Button 
+          onClick={() => setShowVoiceRecorder(true)}
+           className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <Mic className="w-6 h-6 mr-2" />
+            Anotação por voz
+            </Button>
+            
           <Button 
             onClick={() => setShowExpenseForm(true)}
             className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
@@ -391,13 +400,7 @@ const Index = () => {
             Orçamento Mensal 📊
           </Button>
 
-          <Button 
-            onClick={() => setShowVoiceRecorder(true)}
-            className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-          >
-            <Mic className="w-6 h-6 mr-2" />
-            Nota Gratuita 🎤
-          </Button>
+
 
           <Button 
             className="h-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
