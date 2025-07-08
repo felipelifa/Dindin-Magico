@@ -293,7 +293,7 @@ const Index = () => {
             </h1>
             <p className="text-gray-600 mt-1">{getMotivationalMessage()}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <Button 
               onClick={() => window.location.href = '/settings'}
               variant="outline"
