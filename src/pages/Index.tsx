@@ -19,7 +19,6 @@ import VoiceRecorder from '@/components/VoiceRecorder';
 import { useToast } from '@/hooks/use-toast';
 import { Settings } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import { useRef } from 'react';
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -37,9 +36,6 @@ const Index = () => {
   const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const { toast } = useToast();
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const recognitionRef = useRef(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -86,109 +82,6 @@ const Index = () => {
     },
     enabled: !!user
   });
-
-  const startListening = () => {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    toast({
-      title: "Reconhecimento de voz não suportado",
-      description: "Tente usar Chrome, Safari ou Edge",
-      variant: "destructive"
-    });
-    return;
-  }
-  recognitionRef.current = new SpeechRecognition();
-  recognitionRef.current.lang = 'pt-BR';
-  recognitionRef.current.interimResults = false;
-  setTranscript('');
-  setIsListening(true);
-
-  recognitionRef.current.onresult = async (event) => {
-    const t = Array.from(event.results)
-      .map(result => result[0])
-      .map(result => result.transcript)
-      .join('');
-    setTranscript(t);
-
-    // Salvar como gasto automático!
-    await saveExpenseFromTranscript(t);
-    setIsListening(false);
-  };
-
-  recognitionRef.current.onend = () => {
-    setIsListening(false);
-  };
-
-  recognitionRef.current.start();
-};
-
-const stopListening = () => {
-  if (recognitionRef.current) {
-    recognitionRef.current.stop();
-    setIsListening(false);
-  }
-};
-
-const saveExpenseFromTranscript = async (transcriptToSave) => {
-  if (!transcriptToSave.trim()) return;
-
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Usuário não encontrado');
-
-    const text = transcriptToSave.toLowerCase();
-    let amount = 0;
-    let description = transcriptToSave;
-    let category = 'outros';
-
-    const amountMatch = text.match(/(?:r\$\s*)?(\d+(?:[,\.]\d{2})?)/);
-    if (amountMatch) {
-      amount = parseFloat(amountMatch[1].replace(',', '.'));
-    }
-
-    if (text.includes('comida') || text.includes('almoço') || text.includes('jantar') || text.includes('restaurante')) {
-      category = 'alimentacao';
-    } else if (text.includes('uber') || text.includes('taxi') || text.includes('ônibus') || text.includes('transporte')) {
-      category = 'transporte';
-    } else if (text.includes('cinema') || text.includes('diversão') || text.includes('lazer')) {
-      category = 'lazer';
-    } else if (text.includes('farmácia') || text.includes('médico') || text.includes('saúde')) {
-      category = 'saude';
-    }
-
-    if (amount > 0) {
-      const { error } = await supabase
-        .from('expenses')
-        .insert({
-          user_id: user.id,
-          amount,
-          description: `Nota de voz: ${description}`,
-          category,
-          date: new Date().toISOString().split('T')[0],
-          emoji: '🎤'
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Gasto salvo! 💰",
-        description: `R$ ${amount.toFixed(2)} registrado com sucesso`
-      });
-    } else {
-      toast({
-        title: "Valor não identificado",
-        description: "Não consegui identificar o valor na nota de voz",
-        variant: "destructive"
-      });
-    }
-  } catch (error) {
-    toast({
-      title: "Erro ao salvar gasto",
-      description: "Tente novamente",
-      variant: "destructive"
-    });
-  }
-};
 
   const { data: goals = [] } = useQuery({
     queryKey: ['goals', user?.id],
@@ -400,7 +293,7 @@ const saveExpenseFromTranscript = async (transcriptToSave) => {
             </h1>
             <p className="text-gray-600 mt-1">{getMotivationalMessage()}</p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+          <div className="flex gap-3">
             <Button 
               onClick={() => window.location.href = '/settings'}
               variant="outline"
@@ -474,18 +367,6 @@ const saveExpenseFromTranscript = async (transcriptToSave) => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-          
-         <Button
-  onClick={isListening ? stopListening : startListening}
-  className={`h-16 ${isListening
-    ? "bg-red-600 hover:bg-red-700"
-    : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
-  } text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl`}
->
-  <Mic className="w-6 h-6 mr-2" />
-  {isListening ? "Gravando..." : "Anotação por voz"}
-</Button>
-
           <Button 
             onClick={() => setShowExpenseForm(true)}
             className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
@@ -510,7 +391,13 @@ const saveExpenseFromTranscript = async (transcriptToSave) => {
             Orçamento Mensal 📊
           </Button>
 
-
+          <Button 
+            onClick={() => setShowVoiceRecorder(true)}
+            className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <Mic className="w-6 h-6 mr-2" />
+            Nota Gratuita 🎤
+          </Button>
 
           <Button 
             className="h-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
