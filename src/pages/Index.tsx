@@ -18,6 +18,7 @@ import VoiceRecorder from '@/components/VoiceRecorder';
 import { useToast } from '@/hooks/use-toast';
 import { Settings } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import VoiceRecorderButton from '@/components/VoiceRecorderButton';
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -370,11 +371,7 @@ const Index = () => {
   onClick={() => setShowVoiceRecorder(true)}
   className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
 >
-  <Mic className="w-6 h-6 mr-2" />
-  Nota Gratuita 🎤
-</Button>
-
-
+  <VoiceRecorderButton />
 
           <Button 
             onClick={() => setShowExpenseForm(true)}
@@ -412,11 +409,7 @@ const Index = () => {
           </Button>
         </div>
            
-            <VoiceRecorder
-  isOpen={showVoiceRecorder}
-  onClose={() => setShowVoiceRecorder(false)}
-/>
-
+        
         {/* Monthly Budget Section */}
         {currentMonthBudget && (
           <MonthlyBudgetCard 
