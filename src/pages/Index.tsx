@@ -18,6 +18,8 @@ import VoiceNoteRecorder from '@/components/VoiceNoteRecorder';
 import VoiceRecorder from '@/components/VoiceRecorder';
 import { useToast } from '@/hooks/use-toast';
 import { Settings } from 'lucide-react';
+import FixedExpensesList from '@/components/FixedExpensesList';
+
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -34,8 +36,9 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+   const [showFixedExpensesModal, setShowFixedExpensesModal] = useState(false);
   const { toast } = useToast();
-
+  
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -367,12 +370,20 @@ const Index = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+
           <Button 
             onClick={() => setShowVoiceRecorder(true)}
             className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
           >
             <Mic className="w-6 h-6 mr-2" />
             Anotação por voz 🎤
+          </Button>
+             <Button
+            onClick={() => setShowFixedExpensesModal(true)}
+            className="h-16 bg-gradient-to-r from-cyan-500 to-blue-400 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <CreditCard className="w-6 h-6 mr-2" />
+            Gastos Fixos 💳
           </Button>
           <Button 
             onClick={() => setShowExpenseForm(true)}
@@ -397,7 +408,7 @@ const Index = () => {
             <Calendar className="w-6 h-6 mr-2" />
             Orçamento Mensal 📊
           </Button>
-
+              
           
 
           <Button 
@@ -476,6 +487,10 @@ const Index = () => {
           isOpen={showCelebration} 
           onClose={() => setShowCelebration(false)}
           message={celebrationMessage}
+        />
+         <FixedExpensesList
+          isOpen={showFixedExpensesModal}
+          onClose={() => setShowFixedExpensesModal(false)}
         />
       </div>
     </div>
