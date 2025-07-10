@@ -19,6 +19,7 @@ import VoiceRecorder from '@/components/VoiceRecorder';
 import { useToast } from '@/hooks/use-toast';
 import { Settings } from 'lucide-react';
 import FixedExpensesList from '@/components/FixedExpensesList';
+import { CreditCard } from 'lucide-react';
 
 
 const Index = () => {
@@ -36,6 +37,7 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [showFixedExpensesModal, setShowFixedExpensesModal] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -380,6 +382,13 @@ const Index = () => {
             onClick={() => setShowExpenseForm(true)}
             className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
           >
+             <Button
+    onClick={() => setShowFixedExpensesModal(true)}
+    className="h-16 bg-gradient-to-r from-cyan-500 to-blue-400 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+  >
+    <Calendar className="w-6 h-6 mr-2" />
+    Gastos Fixos 📅
+  </Button>
             <Plus className="w-6 h-6 mr-2" />
             Novo Gasto 💸
           </Button>
@@ -479,6 +488,11 @@ const Index = () => {
           onClose={() => setShowCelebration(false)}
           message={celebrationMessage}
         />
+        <FixedExpensesList
+  isOpen={showFixedExpensesModal}
+  onClose={() => setShowFixedExpensesModal(false)}
+/>
+
       </div>
     </div>
   );
