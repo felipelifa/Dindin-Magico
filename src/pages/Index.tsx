@@ -382,9 +382,7 @@ const Index = () => {
             onClick={() => setShowFixedExpensesModal(true)}
             className="h-16 bg-gradient-to-r from-cyan-500 to-blue-400 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
           >
-            <CreditCard className="w-6 h-6 mr-2" />
-            Gastos Fixos 💳
-          </Button>
+        
           <Button 
             onClick={() => setShowExpenseForm(true)}
             className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
