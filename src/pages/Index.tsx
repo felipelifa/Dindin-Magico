@@ -389,9 +389,14 @@ const Index = () => {
     <Calendar className="w-6 h-6 mr-2" />
     Gastos Fixos 📅
   </Button>
-            <Plus className="w-6 h-6 mr-2" />
-            Novo Gasto 💸
-          </Button>
+           
+  <Button
+    onClick={() => setShowExpenseForm(true)}
+    className="h-16 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl"
+  >
+    <Plus className="w-6 h-6 mr-2" />
+    Novo Gasto 💸
+  </Button>
           
           <Button 
             onClick={() => setShowGoalForm(true)}
