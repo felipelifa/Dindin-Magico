@@ -38,6 +38,7 @@ const Index = () => {
   const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const [showFixedExpensesModal, setShowFixedExpensesModal] = useState(false);
+  const [gastosFiltro, setGastosFiltro] = useState('todos');
   const { toast } = useToast();
   
   useEffect(() => {
@@ -145,6 +146,17 @@ const gastosVariaveisMes = thisMonthExpenses.reduce((sum, expense) => sum + Numb
 // Somatório dos gastos fixos cadastrados
 const gastosFixosMes = fixedExpenses.reduce((sum, fx) => sum + Number(fx.amount), 0);
 
+// Gastos variáveis do mês (expenses normais)
+const thisMonthExpenses = expenses.filter(expense => {
+  const expenseDate = new Date(expense.date);
+  const now = new Date();
+  return (
+    expenseDate.getMonth() === now.getMonth() &&
+    expenseDate.getFullYear() === now.getFullYear()
+  );
+});
+const gastosVariaveisMes = thisMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+
 // Soma dos dois
 const gastosMes = gastosVariaveisMes + gastosFixosMes;
 
@@ -216,6 +228,11 @@ const gastosMes = gastosVariaveisMes + gastosFixosMes;
     setUser(null);
     setSession(null);
   };
+const getGastosValor = () => {
+  if (gastosFiltro === 'fixos') return gastosFixosMes;
+  if (gastosFiltro === 'variaveis') return gastosVariaveisMes;
+  return gastosMes; // todos
+};
 
   if (!user) {
     return (
@@ -366,18 +383,55 @@ const gastosMes = gastosVariaveisMes + gastosFixosMes;
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-0 text-white shadow-xl">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center text-lg">
-                <TrendingUp className="w-6 h-6 mr-2" />
-                Gastos do Mês
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">R$ {gastosMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-              <p className="text-blue-100 mt-1">Continue assim! 💪</p>
-            </CardContent>
-          </Card>
+        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-0 text-white shadow-xl">
+  <CardHeader className="pb-3">
+    <CardTitle className="flex items-center text-lg">
+      <TrendingUp className="w-6 h-6 mr-2" />
+      Gastos do Mês
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    {/* Botões de filtro */}
+    <div className="flex gap-2 mb-2">
+      <Button
+        size="sm"
+        variant={gastosFiltro === 'todos' ? "default" : "outline"}
+        onClick={() => setGastosFiltro('todos')}
+        className="bg-white/20 text-white hover:bg-white/40"
+      >
+        Todos
+      </Button>
+      <Button
+        size="sm"
+        variant={gastosFiltro === 'variaveis' ? "default" : "outline"}
+        onClick={() => setGastosFiltro('variaveis')}
+        className="bg-white/20 text-white hover:bg-white/40"
+      >
+        Normais
+      </Button>
+      <Button
+        size="sm"
+        variant={gastosFiltro === 'fixos' ? "default" : "outline"}
+        onClick={() => setGastosFiltro('fixos')}
+        className="bg-white/20 text-white hover:bg-white/40"
+      >
+        Fixos
+      </Button>
+    </div>
+    {/* Valor filtrado */}
+    <p className="text-3xl font-bold">
+      R$ {getGastosValor().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+    </p>
+    <p className="text-blue-100 mt-1">
+      {gastosFiltro === 'fixos'
+        ? 'Gastos fixos deste mês 💡'
+        : gastosFiltro === 'variaveis'
+        ? 'Gastos normais do mês 🔄'
+        : 'Continue assim! 💪'}
+    </p>
+  </CardContent>
+</Card>
+
 
           <Card className="bg-gradient-to-br from-purple-500 to-purple-600 border-0 text-white shadow-xl">
             <CardHeader className="pb-3">
