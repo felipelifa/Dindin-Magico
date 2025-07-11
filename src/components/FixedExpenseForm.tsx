@@ -14,7 +14,7 @@ interface FixedExpenseFormProps {
     name?: string;
     amount?: number;
     category?: string;
-    due_date?: number;
+    due_date?: number;   // <-- aqui trocou
   };
 }
 
@@ -22,7 +22,7 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
   const [name, setName] = useState(initialData?.name || '');
   const [amount, setAmount] = useState(initialData?.amount || '');
   const [category, setCategory] = useState(initialData?.category || '');
-  const [dueDate, setDueDay] = useState(initialData?.due_date || '');
+  const [dueDate, setDueDate] = useState(initialData?.due_date || ''); // <-- aqui trocou
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -44,7 +44,7 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
             name,
             amount: Number(amount),
             category,
-            due_date: Number(dueDate)
+            due_date: Number(dueDate)  // <-- aqui trocou
           })
           .eq('id', initialData.id);
       } else {
@@ -56,7 +56,7 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
             name,
             amount: Number(amount),
             category,
-            due_date: Number(dueDate)
+            due_date: Number(dueDate)  // <-- aqui trocou
           });
       }
       if (response.error) throw response.error;
@@ -67,7 +67,7 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
       setName('');
       setAmount('');
       setCategory('');
-      setDueDate('');
+      setDueDate('');  // <-- aqui trocou
     } catch (err: any) {
       toast({ title: "Erro!", description: err.message, variant: "destructive" });
     } finally {
