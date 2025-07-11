@@ -21,7 +21,6 @@ import { Settings } from 'lucide-react';
 import FixedExpensesList from '@/components/FixedExpensesList';
 import { CreditCard } from 'lucide-react';
 
-
 const Index = () => {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
@@ -40,14 +39,13 @@ const Index = () => {
   const [showFixedExpensesModal, setShowFixedExpensesModal] = useState(false);
   const [gastosFiltro, setGastosFiltro] = useState('todos');
   const { toast } = useToast();
-  
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session);
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           setTimeout(async () => {
             const { data: profile } = await supabase
@@ -55,7 +53,7 @@ const Index = () => {
               .select('*')
               .eq('id', session.user.id)
               .single();
-            
+
             if (profile && new Date(profile.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)) {
               setShowWelcome(true);
             }
@@ -117,58 +115,53 @@ const Index = () => {
     },
     enabled: !!user
   });
-  
-const { data: fixedExpenses = [] } = useQuery({
-  queryKey: ['fixed_expenses', user?.id],
-  queryFn: async () => {
-    if (!user) return [];
-    const { data, error } = await supabase
-      .from('fixed_expenses')
-      .select('*')
-      .eq('user_id', user.id);
-    if (error) throw error;
-    return data;
-  },
-  enabled: !!user
-});
 
-  const totalGastos = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
-  const thisMonthExpenses = expenses.filter(expense => {
-    const expenseDate = new Date(expense.date);
-    const now = new Date();
-    return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
+  const { data: fixedExpenses = [] } = useQuery({
+    queryKey: ['fixed_expenses', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('fixed_expenses')
+        .select('*')
+        .eq('user_id', user.id);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user
   });
 
-
-  // Somatório dos gastos variáveis do mês
-const gastosVariaveisMes = thisMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
-
-// Somatório dos gastos fixos cadastrados
-const gastosFixosMes = fixedExpenses.reduce((sum, fx) => sum + Number(fx.amount), 0);
-
-// Gastos variáveis do mês (expenses normais)
-const thisMonthExpenses = expenses.filter(expense => {
-  const expenseDate = new Date(expense.date);
+  // ======================== GASTOS ========================
+  // Filtra os gastos variáveis do mês atual
   const now = new Date();
-  return (
-    expenseDate.getMonth() === now.getMonth() &&
-    expenseDate.getFullYear() === now.getFullYear()
-  );
-});
-const gastosVariaveisMes = thisMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+  const thisMonthExpenses = expenses.filter(expense => {
+    const expenseDate = new Date(expense.date);
+    return (
+      expenseDate.getMonth() === now.getMonth() &&
+      expenseDate.getFullYear() === now.getFullYear()
+    );
+  });
+  // Valor dos gastos variáveis do mês
+  const gastosVariaveisMes = thisMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+  // Valor dos gastos fixos cadastrados
+  const gastosFixosMes = fixedExpenses.reduce((sum, fx) => sum + Number(fx.amount), 0);
+  // Soma dos dois
+  const gastosMes = gastosVariaveisMes + gastosFixosMes;
 
-// Soma dos dois
-const gastosMes = gastosVariaveisMes + gastosFixosMes;
+  // Função de filtro para mostrar o valor correto
+  const getGastosValor = () => {
+    if (gastosFiltro === 'fixos') return gastosFixosMes;
+    if (gastosFiltro === 'variaveis') return gastosVariaveisMes;
+    return gastosMes;
+  };
 
+  // ======================== RESTANTE ========================
 
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  const currentMonthBudget = monthlyBudgets.find(budget => 
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const currentMonthBudget = monthlyBudgets.find(budget =>
     budget.month === currentMonth && budget.year === currentYear
   );
-
-  // Calcular economia (diferença entre orçamento e gastos)
-  const economiaDoMes = currentMonthBudget 
+  const economiaDoMes = currentMonthBudget
     ? Math.max(0, Number(currentMonthBudget.budget_amount) - gastosMes)
     : 0;
 
@@ -228,11 +221,6 @@ const gastosMes = gastosVariaveisMes + gastosFixosMes;
     setUser(null);
     setSession(null);
   };
-const getGastosValor = () => {
-  if (gastosFiltro === 'fixos') return gastosFixosMes;
-  if (gastosFiltro === 'variaveis') return gastosVariaveisMes;
-  return gastosMes; // todos
-};
 
   if (!user) {
     return (
@@ -285,7 +273,6 @@ const getGastosValor = () => {
                     Cadastrar
                   </Button>
                 </div>
-                
                 <Input
                   type="email"
                   placeholder="Seu email"
@@ -293,7 +280,6 @@ const getGastosValor = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-                
                 <Input
                   type="password"
                   placeholder="Sua senha"
@@ -301,7 +287,6 @@ const getGastosValor = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                
                 <Button 
                   type="submit"
                   disabled={loading}
@@ -309,7 +294,6 @@ const getGastosValor = () => {
                 >
                   {loading ? "Carregando..." : (isLogin ? "Entrar" : "Criar Conta")}
                 </Button>
-                
                 <Button
                   type="button"
                   onClick={() => setShowAuth(false)}
@@ -331,31 +315,30 @@ const getGastosValor = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 w-full bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-0">
-  <div>
-    <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent break-words">
-      DinDinMágico ✨
-    </h1>
-    <p className="text-gray-600 mt-1">{getMotivationalMessage()}</p>
-  </div>
-  <div className="flex gap-2 justify-end">
-    <Button
-      onClick={() => window.location.href = '/settings'}
-      variant="outline"
-      className="border-gray-300 hover:bg-gray-50 min-w-[100px] py-1 px-2 text-xs sm:text-base"
-    >
-      <Settings className="w-4 h-4 mr-1" />
-      Configurações
-    </Button>
-    <Button
-      onClick={handleSignOut}
-      variant="outline"
-      className="border-gray-300 hover:bg-gray-50 min-w-[60px] py-1 px-2 text-xs sm:text-base"
-    >
-      Sair
-    </Button>
-  </div>
-</div>
-
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent break-words">
+              DinDinMágico ✨
+            </h1>
+            <p className="text-gray-600 mt-1">{getMotivationalMessage()}</p>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button
+              onClick={() => window.location.href = '/settings'}
+              variant="outline"
+              className="border-gray-300 hover:bg-gray-50 min-w-[100px] py-1 px-2 text-xs sm:text-base"
+            >
+              <Settings className="w-4 h-4 mr-1" />
+              Configurações
+            </Button>
+            <Button
+              onClick={handleSignOut}
+              variant="outline"
+              className="border-gray-300 hover:bg-gray-50 min-w-[60px] py-1 px-2 text-xs sm:text-base"
+            >
+              Sair
+            </Button>
+          </div>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-3 gap-6">
@@ -383,55 +366,54 @@ const getGastosValor = () => {
             </CardContent>
           </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-0 text-white shadow-xl">
-  <CardHeader className="pb-3">
-    <CardTitle className="flex items-center text-lg">
-      <TrendingUp className="w-6 h-6 mr-2" />
-      Gastos do Mês
-    </CardTitle>
-  </CardHeader>
-  <CardContent>
-    {/* Botões de filtro */}
-    <div className="flex gap-2 mb-2">
-      <Button
-        size="sm"
-        variant={gastosFiltro === 'todos' ? "default" : "outline"}
-        onClick={() => setGastosFiltro('todos')}
-        className="bg-white/20 text-white hover:bg-white/40"
-      >
-        Todos
-      </Button>
-      <Button
-        size="sm"
-        variant={gastosFiltro === 'variaveis' ? "default" : "outline"}
-        onClick={() => setGastosFiltro('variaveis')}
-        className="bg-white/20 text-white hover:bg-white/40"
-      >
-        Normais
-      </Button>
-      <Button
-        size="sm"
-        variant={gastosFiltro === 'fixos' ? "default" : "outline"}
-        onClick={() => setGastosFiltro('fixos')}
-        className="bg-white/20 text-white hover:bg-white/40"
-      >
-        Fixos
-      </Button>
-    </div>
-    {/* Valor filtrado */}
-    <p className="text-3xl font-bold">
-      R$ {getGastosValor().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-    </p>
-    <p className="text-blue-100 mt-1">
-      {gastosFiltro === 'fixos'
-        ? 'Gastos fixos deste mês 💡'
-        : gastosFiltro === 'variaveis'
-        ? 'Gastos normais do mês 🔄'
-        : 'Continue assim! 💪'}
-    </p>
-  </CardContent>
-</Card>
-
+          {/* GASTOS DO MÊS COM FILTRO */}
+          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-0 text-white shadow-xl">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-lg">
+                <TrendingUp className="w-6 h-6 mr-2" />
+                Gastos do Mês
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Botões de filtro */}
+              <div className="flex gap-2 mb-2">
+                <Button
+                  size="sm"
+                  variant={gastosFiltro === 'todos' ? "default" : "outline"}
+                  onClick={() => setGastosFiltro('todos')}
+                  className="bg-white/20 text-white hover:bg-white/40"
+                >
+                  Todos
+                </Button>
+                <Button
+                  size="sm"
+                  variant={gastosFiltro === 'variaveis' ? "default" : "outline"}
+                  onClick={() => setGastosFiltro('variaveis')}
+                  className="bg-white/20 text-white hover:bg-white/40"
+                >
+                  Normais
+                </Button>
+                <Button
+                  size="sm"
+                  variant={gastosFiltro === 'fixos' ? "default" : "outline"}
+                  onClick={() => setGastosFiltro('fixos')}
+                  className="bg-white/20 text-white hover:bg-white/40"
+                >
+                  Fixos
+                </Button>
+              </div>
+              <p className="text-3xl font-bold">
+                R$ {getGastosValor().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-blue-100 mt-1">
+                {gastosFiltro === 'fixos'
+                  ? 'Gastos fixos deste mês 💡'
+                  : gastosFiltro === 'variaveis'
+                  ? 'Gastos normais do mês 🔄'
+                  : 'Continue assim! 💪'}
+              </p>
+            </CardContent>
+          </Card>
 
           <Card className="bg-gradient-to-br from-purple-500 to-purple-600 border-0 text-white shadow-xl">
             <CardHeader className="pb-3">
@@ -449,58 +431,57 @@ const getGastosValor = () => {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-  <Button
-    onClick={() => setShowVoiceRecorder(true)}
-    className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-  >
-    <Mic className="w-6 h-6 mr-2" />
-    Anotação por voz 🎤
-  </Button>
+          <Button
+            onClick={() => setShowVoiceRecorder(true)}
+            className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <Mic className="w-6 h-6 mr-2" />
+            Anotação por voz 🎤
+          </Button>
 
-  <Button
-    onClick={() => setShowFixedExpensesModal(true)}
-    className="h-16 bg-gradient-to-r from-cyan-500 to-blue-400 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-  >
-    {/* Você pode trocar o ícone se quiser */}
-    <span className="mr-2">💳</span>
-    Gastos Fixos
-  </Button>
+          <Button
+            onClick={() => setShowFixedExpensesModal(true)}
+            className="h-16 bg-gradient-to-r from-cyan-500 to-blue-400 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <span className="mr-2">💳</span>
+            Gastos Fixos
+          </Button>
 
-  <Button
-    onClick={() => setShowExpenseForm(true)}
-    className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-  >
-    <Plus className="w-6 h-6 mr-2" />
-    Novo Gasto 💸
-  </Button>
+          <Button
+            onClick={() => setShowExpenseForm(true)}
+            className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <Plus className="w-6 h-6 mr-2" />
+            Novo Gasto 💸
+          </Button>
 
-  <Button
-    onClick={() => setShowGoalForm(true)}
-    className="h-16 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-  >
-    <Target className="w-6 h-6 mr-2" />
-    Nova Meta 🎯
-  </Button>
+          <Button
+            onClick={() => setShowGoalForm(true)}
+            className="h-16 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <Target className="w-6 h-6 mr-2" />
+            Nova Meta 🎯
+          </Button>
 
-  <Button
-    onClick={() => setShowBudgetForm(true)}
-    className="h-16 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-  >
-    <Calendar className="w-6 h-6 mr-2" />
-    Orçamento Mensal 📊
-  </Button>
+          <Button
+            onClick={() => setShowBudgetForm(true)}
+            className="h-16 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <Calendar className="w-6 h-6 mr-2" />
+            Orçamento Mensal 📊
+          </Button>
 
-  <Button
-    className="h-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-    onClick={() => {
-      setCelebrationMessage("Você é incrível! Continue assim! 🎉✨");
-      setShowCelebration(true);
-    }}
-  >
-    <Sparkles className="w-6 h-6 mr-2" />
-    Me Motiva! ⚡
-  </Button>
-</div>
+          <Button
+            className="h-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+            onClick={() => {
+              setCelebrationMessage("Você é incrível! Continue assim! 🎉✨");
+              setShowCelebration(true);
+            }}
+          >
+            <Sparkles className="w-6 h-6 mr-2" />
+            Me Motiva! ⚡
+          </Button>
+        </div>
 
         {/* Monthly Budget Section */}
         {currentMonthBudget && (
@@ -568,10 +549,9 @@ const getGastosValor = () => {
           message={celebrationMessage}
         />
         <FixedExpensesList
-  isOpen={showFixedExpensesModal}
-  onClose={() => setShowFixedExpensesModal(false)}
-/>
-
+          isOpen={showFixedExpensesModal}
+          onClose={() => setShowFixedExpensesModal(false)}
+        />
       </div>
     </div>
   );
