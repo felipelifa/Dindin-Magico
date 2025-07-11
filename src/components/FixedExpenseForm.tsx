@@ -14,7 +14,7 @@ interface FixedExpenseFormProps {
     name?: string;
     amount?: number;
     category?: string;
-    due_day?: number;
+    due_date?: number;
   };
 }
 
@@ -22,7 +22,7 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
   const [name, setName] = useState(initialData?.name || '');
   const [amount, setAmount] = useState(initialData?.amount || '');
   const [category, setCategory] = useState(initialData?.category || '');
-  const [dueDay, setDueDay] = useState(initialData?.due_day || '');
+  const [dueDate, setDueDay] = useState(initialData?.due_date || '');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -44,7 +44,7 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
             name,
             amount: Number(amount),
             category,
-            due_day: Number(dueDay)
+            due_date: Number(dueDate)
           })
           .eq('id', initialData.id);
       } else {
@@ -56,7 +56,7 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
             name,
             amount: Number(amount),
             category,
-            due_day: Number(dueDay)
+            due_date: Number(dueDate)
           });
       }
       if (response.error) throw response.error;
@@ -67,7 +67,7 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
       setName('');
       setAmount('');
       setCategory('');
-      setDueDay('');
+      setDueDate('');
     } catch (err: any) {
       toast({ title: "Erro!", description: err.message, variant: "destructive" });
     } finally {
@@ -104,8 +104,8 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
           />
           <Input
             placeholder="Dia do vencimento (ex: 10)"
-            value={dueDay}
-            onChange={e => setDueDay(e.target.value.replace(/\D/, ''))}
+            value={dueDate}
+            onChange={e => setDueDate(e.target.value.replace(/\D/, ''))}
             type="number"
             min={1}
             max={31}
