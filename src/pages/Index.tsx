@@ -116,6 +116,19 @@ const Index = () => {
     },
     enabled: !!user
   });
+const { data: fixedExpenses = [] } = useQuery({
+  queryKey: ['fixed_expenses', user?.id],
+  queryFn: async () => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from('fixed_expenses')
+      .select('*')
+      .eq('user_id', user.id);
+    if (error) throw error;
+    return data;
+  },
+  enabled: !!user
+});
 
   const totalGastos = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
   const thisMonthExpenses = expenses.filter(expense => {
@@ -123,7 +136,15 @@ const Index = () => {
     const now = new Date();
     return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
   });
-  const gastosMes = thisMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+  // Somatório dos gastos variáveis do mês
+const gastosVariaveisMes = thisMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+
+// Somatório dos gastos fixos cadastrados
+const gastosFixosMes = fixedExpenses.reduce((sum, fx) => sum + Number(fx.amount), 0);
+
+// Soma dos dois
+const gastosMes = gastosVariaveisMes + gastosFixosMes;
+
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
