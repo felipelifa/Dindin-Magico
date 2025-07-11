@@ -116,6 +116,7 @@ const Index = () => {
     },
     enabled: !!user
   });
+  
 const { data: fixedExpenses = [] } = useQuery({
   queryKey: ['fixed_expenses', user?.id],
   queryFn: async () => {
@@ -136,6 +137,8 @@ const { data: fixedExpenses = [] } = useQuery({
     const now = new Date();
     return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
   });
+
+
   // Somatório dos gastos variáveis do mês
 const gastosVariaveisMes = thisMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
 
