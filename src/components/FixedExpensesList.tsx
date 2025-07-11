@@ -27,7 +27,7 @@ const FixedExpensesList: React.FC<FixedExpensesListProps> = ({ isOpen, onClose }
         .from('fixed_expenses')
         .select('*')
         .eq('user_id', user.id)
-        .order('due_day', { ascending: true });
+        .order('due_date', { ascending: true });
       if (error) throw error;
       return data;
     }
@@ -78,7 +78,7 @@ const FixedExpensesList: React.FC<FixedExpensesListProps> = ({ isOpen, onClose }
                     R$ {Number(item.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                   <span className="ml-4 text-xs text-gray-400">
-                    Vence dia {item.due_day}
+                    Vence dia {item.due_date}
                   </span>
                 </div>
                 <div className="flex gap-2">
