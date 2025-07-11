@@ -14,7 +14,8 @@ interface FixedExpenseFormProps {
     name?: string;
     amount?: number;
     category?: string;
-    due_date?: number;   // <-- aqui trocou
+    due_date?: number;
+    next_due_date?: string;
   };
 }
 
@@ -22,10 +23,21 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
   const [name, setName] = useState(initialData?.name || '');
   const [amount, setAmount] = useState(initialData?.amount || '');
   const [category, setCategory] = useState(initialData?.category || '');
-  const [dueDate, setDueDate] = useState(initialData?.due_date || ''); // <-- aqui trocou
+  const [dueDate, setDueDate] = useState(initialData?.due_date || '');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Função para calcular o próximo vencimento a partir do dia digitado
+  function calcNextDueDate(dia: number) {
+    const hoje = new Date();
+    let proximo = new Date(hoje.getFullYear(), hoje.getMonth(), dia);
+    if (proximo < hoje) {
+      // Se já passou neste mês, coloca para o próximo mês
+      proximo.setMonth(proximo.getMonth() + 1);
+    }
+    return proximo.toISOString().split('T')[0]; // yyyy-mm-dd
+  }
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -34,6 +46,10 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não encontrado');
+
+      // Calcula o next_due_date
+      const diaVencimento = Number(dueDate);
+      const nextDueDate = calcNextDueDate(diaVencimento);
 
       let response;
       if (initialData?.id) {
@@ -44,7 +60,8 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
             name,
             amount: Number(amount),
             category,
-            due_date: Number(dueDate)  // <-- aqui trocou
+            due_date: diaVencimento,
+            next_due_date: nextDueDate,
           })
           .eq('id', initialData.id);
       } else {
@@ -56,7 +73,8 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
             name,
             amount: Number(amount),
             category,
-            due_date: Number(dueDate)  // <-- aqui trocou
+            due_date: diaVencimento,
+            next_due_date: nextDueDate,
           });
       }
       if (response.error) throw response.error;
@@ -67,7 +85,7 @@ const FixedExpenseForm = ({ isOpen, onClose, initialData }: FixedExpenseFormProp
       setName('');
       setAmount('');
       setCategory('');
-      setDueDate('');  // <-- aqui trocou
+      setDueDate('');
     } catch (err: any) {
       toast({ title: "Erro!", description: err.message, variant: "destructive" });
     } finally {
