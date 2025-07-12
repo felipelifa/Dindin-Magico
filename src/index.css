@@ -93,20 +93,13 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    /* ... (demais variáveis aqui) ... */
-  }
-  .dark {
-    /* ... (variáveis para dark mode) ... */
-  }
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
-

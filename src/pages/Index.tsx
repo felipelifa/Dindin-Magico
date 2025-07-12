@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { PiggyBank, Target, TrendingUp, Sparkles, Plus, Mic, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import ExpenseForm from '@/components/ExpenseForm';
@@ -13,11 +14,10 @@ import WelcomeModal from '@/components/WelcomeModal';
 import CelebrationModal from '@/components/CelebrationModal';
 import MonthlyBudgetForm from '@/components/MonthlyBudgetForm';
 import MonthlyBudgetCard from '@/components/MonthlyBudgetCard';
+import VoiceNoteRecorder from '@/components/VoiceNoteRecorder';
 import VoiceRecorder from '@/components/VoiceRecorder';
 import { useToast } from '@/hooks/use-toast';
 import { Settings } from 'lucide-react';
-import FixedExpensesList from '@/components/FixedExpensesList';
-import CalendarFinanceiro from '@/components/CalendarFinanceiro';
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -34,16 +34,15 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
-  const [showFixedExpensesModal, setShowFixedExpensesModal] = useState(false);
-  const [gastosFiltro, setGastosFiltro] = useState('todos');
   const { toast } = useToast();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session);
         setSession(session);
         setUser(session?.user ?? null);
-
+        
         if (session?.user) {
           setTimeout(async () => {
             const { data: profile } = await supabase
@@ -51,7 +50,7 @@ const Index = () => {
               .select('*')
               .eq('id', session.user.id)
               .single();
-
+            
             if (profile && new Date(profile.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)) {
               setShowWelcome(true);
             }
@@ -82,7 +81,6 @@ const Index = () => {
     },
     enabled: !!user
   });
-  const categoriasUnicas = Array.from(new Set(expenses.map(e => e.category).filter(Boolean)));
 
   const { data: goals = [] } = useQuery({
     queryKey: ['goals', user?.id],
@@ -115,52 +113,22 @@ const Index = () => {
     enabled: !!user
   });
 
-  const { data: fixedExpenses = [] } = useQuery({
-    queryKey: ['fixed_expenses', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('fixed_expenses')
-        .select('*')
-        .eq('user_id', user.id);
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user
-  });
-
-  // ================= GASTOS ===================
-  // Filtra os gastos variáveis do mês atual
-  const now = new Date();
+  const totalGastos = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
   const thisMonthExpenses = expenses.filter(expense => {
     const expenseDate = new Date(expense.date);
-    return (
-      expenseDate.getMonth() === now.getMonth() &&
-      expenseDate.getFullYear() === now.getFullYear()
-    );
+    const now = new Date();
+    return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
   });
-  // Valor dos gastos variáveis do mês
-  const gastosVariaveisMes = thisMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
-  // Valor dos gastos fixos cadastrados
-  const gastosFixosMes = fixedExpenses.reduce((sum, fx) => sum + Number(fx.amount), 0);
-  // Soma dos dois
-  const gastosMes = gastosVariaveisMes + gastosFixosMes;
+  const gastosMes = thisMonthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
 
-  // Função de filtro para mostrar o valor correto
-  const getGastosValor = () => {
-    if (gastosFiltro === 'fixos') return gastosFixosMes;
-    if (gastosFiltro === 'variaveis') return gastosVariaveisMes;
-    return gastosMes;
-  };
-
-  // ================= RESTANTE =================
-
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
-  const currentMonthBudget = monthlyBudgets.find(budget =>
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+  const currentMonthBudget = monthlyBudgets.find(budget => 
     budget.month === currentMonth && budget.year === currentYear
   );
-  const economiaDoMes = currentMonthBudget
+
+  // Calcular economia (diferença entre orçamento e gastos)
+  const economiaDoMes = currentMonthBudget 
     ? Math.max(0, Number(currentMonthBudget.budget_amount) - gastosMes)
     : 0;
 
@@ -195,8 +163,7 @@ const Index = () => {
           email,
           password,
           options: {
-           emailRedirectTo: `${window.location.origin}/`
-
+            emailRedirectTo: `${window.location.origin}/`
           }
         });
         if (error) throw error;
@@ -273,6 +240,7 @@ const Index = () => {
                     Cadastrar
                   </Button>
                 </div>
+                
                 <Input
                   type="email"
                   placeholder="Seu email"
@@ -280,6 +248,7 @@ const Index = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
+                
                 <Input
                   type="password"
                   placeholder="Sua senha"
@@ -287,6 +256,7 @@ const Index = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                
                 <Button 
                   type="submit"
                   disabled={loading}
@@ -294,6 +264,7 @@ const Index = () => {
                 >
                   {loading ? "Carregando..." : (isLogin ? "Entrar" : "Criar Conta")}
                 </Button>
+                
                 <Button
                   type="button"
                   onClick={() => setShowAuth(false)}
@@ -314,26 +285,26 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 w-full bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-0">
+        <div className="flex justify-between items-center bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-0">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent break-words">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
               DinDinMágico ✨
             </h1>
             <p className="text-gray-600 mt-1">{getMotivationalMessage()}</p>
           </div>
-          <div className="flex gap-2 justify-end">
-            <Button
+          <div className="flex gap-3">
+            <Button 
               onClick={() => window.location.href = '/settings'}
               variant="outline"
-              className="border-gray-300 hover:bg-gray-50 min-w-[100px] py-1 px-2 text-xs sm:text-base"
+              className="border-gray-300 hover:bg-gray-50"
             >
-              <Settings className="w-4 h-4 mr-1" />
+              <Settings className="w-4 h-4 mr-2" />
               Configurações
             </Button>
-            <Button
+            <Button 
               onClick={handleSignOut}
               variant="outline"
-              className="border-gray-300 hover:bg-gray-50 min-w-[60px] py-1 px-2 text-xs sm:text-base"
+              className="border-gray-300 hover:bg-gray-50"
             >
               Sair
             </Button>
@@ -366,7 +337,6 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          {/* GASTOS DO MÊS COM FILTRO */}
           <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-0 text-white shadow-xl">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center text-lg">
@@ -375,43 +345,8 @@ const Index = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Botões de filtro */}
-              <div className="flex gap-2 mb-2">
-                <Button
-                  size="sm"
-                  variant={gastosFiltro === 'todos' ? "default" : "outline"}
-                  onClick={() => setGastosFiltro('todos')}
-                  className="bg-white/20 text-white hover:bg-white/40"
-                >
-                  Todos
-                </Button>
-                <Button
-                  size="sm"
-                  variant={gastosFiltro === 'variaveis' ? "default" : "outline"}
-                  onClick={() => setGastosFiltro('variaveis')}
-                  className="bg-white/20 text-white hover:bg-white/40"
-                >
-                  Normais
-                </Button>
-                <Button
-                  size="sm"
-                  variant={gastosFiltro === 'fixos' ? "default" : "outline"}
-                  onClick={() => setGastosFiltro('fixos')}
-                  className="bg-white/20 text-white hover:bg-white/40"
-                >
-                  Fixos
-                </Button>
-              </div>
-              <p className="text-3xl font-bold">
-                R$ {getGastosValor().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-blue-100 mt-1">
-                {gastosFiltro === 'fixos'
-                  ? 'Gastos fixos deste mês 💡'
-                  : gastosFiltro === 'variaveis'
-                  ? 'Gastos normais do mês 🔄'
-                  : 'Continue assim! 💪'}
-              </p>
+              <p className="text-3xl font-bold">R$ {gastosMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+              <p className="text-blue-100 mt-1">Continue assim! 💪</p>
             </CardContent>
           </Card>
 
@@ -428,35 +363,18 @@ const Index = () => {
             </CardContent>
           </Card>
         </div>
-                  <CalendarFinanceiro expenses={expenses} user={user} categories={categoriasUnicas} />
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Button
-            onClick={() => setShowVoiceRecorder(true)}
-            className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-          >
-            <Mic className="w-6 h-6 mr-2" />
-            Anotação por voz 🎤
-          </Button>
-
-          <Button
-            onClick={() => setShowFixedExpensesModal(true)}
-            className="h-16 bg-gradient-to-r from-cyan-500 to-blue-400 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-          >
-            <span className="mr-2">💳</span>
-            Gastos Fixos
-          </Button>
-
-          <Button
+          <Button 
             onClick={() => setShowExpenseForm(true)}
             className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
           >
             <Plus className="w-6 h-6 mr-2" />
             Novo Gasto 💸
           </Button>
-
-          <Button
+          
+          <Button 
             onClick={() => setShowGoalForm(true)}
             className="h-16 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
           >
@@ -464,7 +382,7 @@ const Index = () => {
             Nova Meta 🎯
           </Button>
 
-          <Button
+          <Button 
             onClick={() => setShowBudgetForm(true)}
             className="h-16 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
           >
@@ -472,7 +390,15 @@ const Index = () => {
             Orçamento Mensal 📊
           </Button>
 
-          <Button
+          <Button 
+            onClick={() => setShowVoiceRecorder(true)}
+            className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+          >
+            <Mic className="w-6 h-6 mr-2" />
+            Nota Gratuita 🎤
+          </Button>
+
+          <Button 
             className="h-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
             onClick={() => {
               setCelebrationMessage("Você é incrível! Continue assim! 🎉✨");
@@ -548,10 +474,6 @@ const Index = () => {
           isOpen={showCelebration} 
           onClose={() => setShowCelebration(false)}
           message={celebrationMessage}
-        />
-        <FixedExpensesList
-          isOpen={showFixedExpensesModal}
-          onClose={() => setShowFixedExpensesModal(false)}
         />
       </div>
     </div>
