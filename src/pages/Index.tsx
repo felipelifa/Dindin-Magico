@@ -36,8 +36,6 @@ const Index = () => {
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const [showFixedExpensesModal, setShowFixedExpensesModal] = useState(false);
   const [gastosFiltro, setGastosFiltro] = useState('todos');
-const categoriasUnicas = Array.from(new Set(expenses.map(e => e.category).filter(Boolean)));
-
   const { toast } = useToast();
 
   useEffect(() => {
@@ -84,6 +82,7 @@ const categoriasUnicas = Array.from(new Set(expenses.map(e => e.category).filter
     },
     enabled: !!user
   });
+  const categoriasUnicas = Array.from(new Set(expenses.map(e => e.category).filter(Boolean)));
 
   const { data: goals = [] } = useQuery({
     queryKey: ['goals', user?.id],
