@@ -195,7 +195,8 @@ const Index = () => {
           email,
           password,
           options: {
-            emailRedirectTo: ${window.location.origin}/
+           emailRedirectTo: `${window.location.origin}/`
+
           }
         });
         if (error) throw error;
