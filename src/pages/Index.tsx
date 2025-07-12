@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
 import { PiggyBank, Target, TrendingUp, Sparkles, Plus, Mic, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import ExpenseForm from '@/components/ExpenseForm';
@@ -14,12 +13,11 @@ import WelcomeModal from '@/components/WelcomeModal';
 import CelebrationModal from '@/components/CelebrationModal';
 import MonthlyBudgetForm from '@/components/MonthlyBudgetForm';
 import MonthlyBudgetCard from '@/components/MonthlyBudgetCard';
-import VoiceNoteRecorder from '@/components/VoiceNoteRecorder';
 import VoiceRecorder from '@/components/VoiceRecorder';
 import { useToast } from '@/hooks/use-toast';
 import { Settings } from 'lucide-react';
 import FixedExpensesList from '@/components/FixedExpensesList';
-import { CreditCard } from 'lucide-react';
+import CalendarFinanceiro from '@/components/CalendarFinanceiro';
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -38,6 +36,8 @@ const Index = () => {
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const [showFixedExpensesModal, setShowFixedExpensesModal] = useState(false);
   const [gastosFiltro, setGastosFiltro] = useState('todos');
+const categoriasUnicas = Array.from(new Set(expenses.map(e => e.category).filter(Boolean)));
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -130,7 +130,7 @@ const Index = () => {
     enabled: !!user
   });
 
-  // ======================== GASTOS ========================
+  // ================= GASTOS ===================
   // Filtra os gastos variáveis do mês atual
   const now = new Date();
   const thisMonthExpenses = expenses.filter(expense => {
@@ -154,7 +154,7 @@ const Index = () => {
     return gastosMes;
   };
 
-  // ======================== RESTANTE ========================
+  // ================= RESTANTE =================
 
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
@@ -428,6 +428,7 @@ const Index = () => {
             </CardContent>
           </Card>
         </div>
+                  <CalendarFinanceiro expenses={expenses} user={user} categories={categoriasUnicas} />
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
