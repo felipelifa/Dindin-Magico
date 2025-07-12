@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+// Se quiser trocar por Bootstrap puro, troque Card, CardContent, CardHeader, CardTitle por divs.
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// Se quiser trocar por Bootstrap puro, troque Button por <button> ou <a> e use className do Bootstrap.
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PiggyBank, Target, TrendingUp, Sparkles, Plus, Mic, Calendar } from 'lucide-react';
@@ -223,51 +225,45 @@ const Index = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="text-center pb-8">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mb-4">
-              <PiggyBank className="w-8 h-8 text-white" />
+      <div className="d-flex min-vh-100 justify-content-center align-items-center bg-light p-4">
+        <div className="card w-100" style={{ maxWidth: 480 }}>
+          <div className="card-header text-center pb-4">
+            <div className="mx-auto rounded-circle bg-success d-flex align-items-center justify-content-center mb-3" style={{ width: 64, height: 64 }}>
+              <PiggyBank className="w-50 h-50 text-white" />
             </div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-              DinDinMágico ✨
-            </CardTitle>
-            <p className="text-lg text-gray-600 mt-2">
-              Seu anjo da guarda financeiro chegou! 💰
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
+            <h2 className="card-title mb-2 fw-bold text-primary">DinDinMágico ✨</h2>
+            <p className="text-secondary">Seu anjo da guarda financeiro chegou! 💰</p>
+          </div>
+          <div className="card-body">
             {!showAuth ? (
               <>
-                <div className="text-center space-y-3">
-                  <p className="text-gray-700">🎯 Transforme sonhos em realidade</p>
-                  <p className="text-gray-700">🏆 Celebre cada conquista</p>
-                  <p className="text-gray-700">📱 Simples e divertido</p>
+                <div className="text-center mb-4">
+                  <p className="mb-1">🎯 Transforme sonhos em realidade</p>
+                  <p className="mb-1">🏆 Celebre cada conquista</p>
+                  <p className="mb-3">📱 Simples e divertido</p>
                 </div>
-                <Button 
+                <Button
                   onClick={() => setShowAuth(true)}
-                  className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="btn btn-success w-100 mb-2"
                 >
-                  <Sparkles className="w-5 h-5 mr-2" />
+                  <Sparkles className="me-2" />
                   Começar a Jornada Mágica
                 </Button>
               </>
             ) : (
-              <form onSubmit={handleAuth} className="space-y-4">
-                <div className="flex gap-2 mb-4">
+              <form onSubmit={handleAuth}>
+                <div className="d-flex gap-2 mb-3">
                   <Button
                     type="button"
                     onClick={() => setIsLogin(true)}
-                    variant={isLogin ? "default" : "outline"}
-                    className="flex-1"
+                    className={`flex-fill btn ${isLogin ? 'btn-primary' : 'btn-outline-primary'}`}
                   >
                     Entrar
                   </Button>
                   <Button
                     type="button"
                     onClick={() => setIsLogin(false)}
-                    variant={!isLogin ? "default" : "outline"}
-                    className="flex-1"
+                    className={`flex-fill btn ${!isLogin ? 'btn-primary' : 'btn-outline-primary'}`}
                   >
                     Cadastrar
                   </Button>
@@ -276,216 +272,223 @@ const Index = () => {
                   type="email"
                   placeholder="Seu email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
+                  className="form-control mb-2"
                   required
                 />
                 <Input
                   type="password"
                   placeholder="Sua senha"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
+                  className="form-control mb-3"
                   required
                 />
-                <Button 
+                <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="btn btn-success w-100 mb-2"
                 >
                   {loading ? "Carregando..." : (isLogin ? "Entrar" : "Criar Conta")}
                 </Button>
                 <Button
                   type="button"
                   onClick={() => setShowAuth(false)}
-                  variant="ghost"
-                  className="w-full"
+                  className="btn btn-link w-100"
                 >
                   Voltar
                 </Button>
               </form>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="bg-light min-vh-100 py-4">
+      <div className="container-lg">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 w-full bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-0">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent break-words">
-              DinDinMágico ✨
-            </h1>
-            <p className="text-gray-600 mt-1">{getMotivationalMessage()}</p>
-          </div>
-          <div className="flex gap-2 justify-end">
-            <Button
-              onClick={() => window.location.href = '/settings'}
-              variant="outline"
-              className="border-gray-300 hover:bg-gray-50 min-w-[100px] py-1 px-2 text-xs sm:text-base"
-            >
-              <Settings className="w-4 h-4 mr-1" />
-              Configurações
-            </Button>
-            <Button
-              onClick={handleSignOut}
-              variant="outline"
-              className="border-gray-300 hover:bg-gray-50 min-w-[60px] py-1 px-2 text-xs sm:text-base"
-            >
-              Sair
-            </Button>
+        <div className="row mb-4">
+          <div className="col-12 bg-white rounded shadow-sm p-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <div>
+              <h1 className="h3 fw-bold text-primary mb-0">DinDinMágico ✨</h1>
+              <p className="text-secondary mb-0">{getMotivationalMessage()}</p>
+            </div>
+            <div className="mt-3 mt-md-0 d-flex gap-2">
+              <Button
+                onClick={() => window.location.href = '/settings'}
+                className="btn btn-outline-secondary"
+              >
+                <Settings className="me-2" />
+                Configurações
+              </Button>
+              <Button
+                onClick={handleSignOut}
+                className="btn btn-outline-danger"
+              >
+                Sair
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 border-0 text-white shadow-xl">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center text-lg">
-                <PiggyBank className="w-6 h-6 mr-2" />
+        <div className="row g-4 mb-4">
+          {/* Economia do mês */}
+          <div className="col-md-4">
+            <div className="card text-white bg-success mb-3 shadow">
+              <div className="card-header d-flex align-items-center">
+                <PiggyBank className="me-2" />
                 {currentMonthBudget ? 'Economia do Mês' : 'Sem Orçamento'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {currentMonthBudget ? (
-                <>
-                  <p className="text-3xl font-bold">R$ {economiaDoMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                  <p className="text-green-100 mt-1">
-                    {economiaDoMes > 0 ? 'Você está economizando! 🎉' : 'Defina um orçamento para economizar! 💪'}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-3xl font-bold">--</p>
-                  <p className="text-green-100 mt-1">Defina um orçamento mensal! 📊</p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* GASTOS DO MÊS COM FILTRO */}
-          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-0 text-white shadow-xl">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center text-lg">
-                <TrendingUp className="w-6 h-6 mr-2" />
-                Gastos do Mês
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Botões de filtro */}
-              <div className="flex gap-2 mb-2">
-                <Button
-                  size="sm"
-                  variant={gastosFiltro === 'todos' ? "default" : "outline"}
-                  onClick={() => setGastosFiltro('todos')}
-                  className="bg-white/20 text-white hover:bg-white/40"
-                >
-                  Todos
-                </Button>
-                <Button
-                  size="sm"
-                  variant={gastosFiltro === 'variaveis' ? "default" : "outline"}
-                  onClick={() => setGastosFiltro('variaveis')}
-                  className="bg-white/20 text-white hover:bg-white/40"
-                >
-                  Normais
-                </Button>
-                <Button
-                  size="sm"
-                  variant={gastosFiltro === 'fixos' ? "default" : "outline"}
-                  onClick={() => setGastosFiltro('fixos')}
-                  className="bg-white/20 text-white hover:bg-white/40"
-                >
-                  Fixos
-                </Button>
               </div>
-              <p className="text-3xl font-bold">
-                R$ {getGastosValor().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-blue-100 mt-1">
-                {gastosFiltro === 'fixos'
-                  ? 'Gastos fixos deste mês 💡'
-                  : gastosFiltro === 'variaveis'
-                  ? 'Gastos normais do mês 🔄'
-                  : 'Continue assim! 💪'}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 border-0 text-white shadow-xl">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center text-lg">
-                <Target className="w-6 h-6 mr-2" />
+              <div className="card-body">
+                {currentMonthBudget ? (
+                  <>
+                    <h3 className="card-title">R$ {economiaDoMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
+                    <p className="card-text">
+                      {economiaDoMes > 0
+                        ? 'Você está economizando! 🎉'
+                        : 'Defina um orçamento para economizar! 💪'}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="card-title">--</h3>
+                    <p className="card-text">Defina um orçamento mensal! 📊</p>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          {/* Gastos do mês */}
+          <div className="col-md-4">
+            <div className="card text-white bg-primary mb-3 shadow">
+              <div className="card-header d-flex align-items-center">
+                <TrendingUp className="me-2" />
+                Gastos do Mês
+              </div>
+              <div className="card-body">
+                {/* Botões de filtro */}
+                <div className="btn-group mb-2 w-100" role="group">
+                  <Button
+                    size="sm"
+                    className={`btn ${gastosFiltro === 'todos' ? 'btn-light text-primary' : 'btn-outline-light'}`}
+                    onClick={() => setGastosFiltro('todos')}
+                  >
+                    Todos
+                  </Button>
+                  <Button
+                    size="sm"
+                    className={`btn ${gastosFiltro === 'variaveis' ? 'btn-light text-primary' : 'btn-outline-light'}`}
+                    onClick={() => setGastosFiltro('variaveis')}
+                  >
+                    Normais
+                  </Button>
+                  <Button
+                    size="sm"
+                    className={`btn ${gastosFiltro === 'fixos' ? 'btn-light text-primary' : 'btn-outline-light'}`}
+                    onClick={() => setGastosFiltro('fixos')}
+                  >
+                    Fixos
+                  </Button>
+                </div>
+                <h3 className="card-title">
+                  R$ {getGastosValor().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </h3>
+                <p className="card-text">
+                  {gastosFiltro === 'fixos'
+                    ? 'Gastos fixos deste mês 💡'
+                    : gastosFiltro === 'variaveis'
+                      ? 'Gastos normais do mês 🔄'
+                      : 'Continue assim! 💪'}
+                </p>
+              </div>
+            </div>
+          </div>
+          {/* Metas ativas */}
+          <div className="col-md-4">
+            <div className="card text-white bg-purple mb-3 shadow" style={{ background: '#8e44ad' }}>
+              <div className="card-header d-flex align-items-center">
+                <Target className="me-2" />
                 Metas Ativas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{goals.length}</p>
-              <p className="text-purple-100 mt-1">Sonhos em andamento! ⭐</p>
-            </CardContent>
-          </Card>
+              </div>
+              <div className="card-body">
+                <h3 className="card-title">{goals.length}</h3>
+                <p className="card-text">Sonhos em andamento! ⭐</p>
+              </div>
+            </div>
+          </div>
         </div>
-                  <CalendarFinanceiro expenses={expenses} user={user} categories={categoriasUnicas} />
+
+        {/* Calendário Financeiro */}
+        <CalendarFinanceiro expenses={expenses} user={user} categories={categoriasUnicas} />
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Button
-            onClick={() => setShowVoiceRecorder(true)}
-            className="h-16 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-          >
-            <Mic className="w-6 h-6 mr-2" />
-            Anotação por voz 🎤
-          </Button>
-
-          <Button
-            onClick={() => setShowFixedExpensesModal(true)}
-            className="h-16 bg-gradient-to-r from-cyan-500 to-blue-400 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-          >
-            <span className="mr-2">💳</span>
-            Gastos Fixos
-          </Button>
-
-          <Button
-            onClick={() => setShowExpenseForm(true)}
-            className="h-16 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-          >
-            <Plus className="w-6 h-6 mr-2" />
-            Novo Gasto 💸
-          </Button>
-
-          <Button
-            onClick={() => setShowGoalForm(true)}
-            className="h-16 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-          >
-            <Target className="w-6 h-6 mr-2" />
-            Nova Meta 🎯
-          </Button>
-
-          <Button
-            onClick={() => setShowBudgetForm(true)}
-            className="h-16 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-          >
-            <Calendar className="w-6 h-6 mr-2" />
-            Orçamento Mensal 📊
-          </Button>
-
-          <Button
-            className="h-16 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-            onClick={() => {
-              setCelebrationMessage("Você é incrível! Continue assim! 🎉✨");
-              setShowCelebration(true);
-            }}
-          >
-            <Sparkles className="w-6 h-6 mr-2" />
-            Me Motiva! ⚡
-          </Button>
+        <div className="row g-3 mb-4">
+          <div className="col-6 col-md-2">
+            <Button
+              onClick={() => setShowVoiceRecorder(true)}
+              className="btn btn-outline-primary w-100"
+            >
+              <Mic className="me-2" />
+              Anotação por voz 🎤
+            </Button>
+          </div>
+          <div className="col-6 col-md-2">
+            <Button
+              onClick={() => setShowFixedExpensesModal(true)}
+              className="btn btn-outline-info w-100"
+            >
+              <span className="me-2">💳</span>
+              Gastos Fixos
+            </Button>
+          </div>
+          <div className="col-6 col-md-2">
+            <Button
+              onClick={() => setShowExpenseForm(true)}
+              className="btn btn-outline-danger w-100"
+            >
+              <Plus className="me-2" />
+              Novo Gasto 💸
+            </Button>
+          </div>
+          <div className="col-6 col-md-2">
+            <Button
+              onClick={() => setShowGoalForm(true)}
+              className="btn btn-outline-success w-100"
+            >
+              <Target className="me-2" />
+              Nova Meta 🎯
+            </Button>
+          </div>
+          <div className="col-6 col-md-2">
+            <Button
+              onClick={() => setShowBudgetForm(true)}
+              className="btn btn-outline-secondary w-100"
+            >
+              <Calendar className="me-2" />
+              Orçamento Mensal 📊
+            </Button>
+          </div>
+          <div className="col-6 col-md-2">
+            <Button
+              className="btn btn-warning w-100"
+              onClick={() => {
+                setCelebrationMessage("Você é incrível! Continue assim! 🎉✨");
+                setShowCelebration(true);
+              }}
+            >
+              <Sparkles className="me-2" />
+              Me Motiva! ⚡
+            </Button>
+          </div>
         </div>
 
         {/* Monthly Budget Section */}
         {currentMonthBudget && (
-          <MonthlyBudgetCard 
+          <MonthlyBudgetCard
             budget={currentMonthBudget}
             currentSpent={gastosMes}
             onEdit={() => setShowBudgetForm(true)}
@@ -494,57 +497,53 @@ const Index = () => {
 
         {/* Goals Progress */}
         {goals.length > 0 && (
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center text-xl">
-                <Target className="w-6 h-6 mr-2 text-green-600" />
-                Suas Metas 🎯
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="card mb-4 shadow">
+            <div className="card-header d-flex align-items-center">
+              <Target className="me-2 text-success" />
+              Suas Metas 🎯
+            </div>
+            <div className="card-body">
               <GoalsList goals={goals} />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Recent Expenses */}
         {expenses.length > 0 && (
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center text-xl">
-                <TrendingUp className="w-6 h-6 mr-2 text-blue-600" />
-                Últimos Gastos 📊
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="card mb-4 shadow">
+            <div className="card-header d-flex align-items-center">
+              <TrendingUp className="me-2 text-primary" />
+              Últimos Gastos 📊
+            </div>
+            <div className="card-body">
               <ExpenseList expenses={expenses.slice(0, 5)} showDeleteButton={true} />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Modals */}
-        <ExpenseForm 
-          isOpen={showExpenseForm} 
-          onClose={() => setShowExpenseForm(false)} 
+        <ExpenseForm
+          isOpen={showExpenseForm}
+          onClose={() => setShowExpenseForm(false)}
         />
-        <GoalForm 
-          isOpen={showGoalForm} 
-          onClose={() => setShowGoalForm(false)} 
+        <GoalForm
+          isOpen={showGoalForm}
+          onClose={() => setShowGoalForm(false)}
         />
-        <MonthlyBudgetForm 
-          isOpen={showBudgetForm} 
-          onClose={() => setShowBudgetForm(false)} 
+        <MonthlyBudgetForm
+          isOpen={showBudgetForm}
+          onClose={() => setShowBudgetForm(false)}
         />
         <VoiceRecorder
           isOpen={showVoiceRecorder}
           onClose={() => setShowVoiceRecorder(false)}
         />
-        <WelcomeModal 
-          isOpen={showWelcome} 
-          onClose={() => setShowWelcome(false)} 
+        <WelcomeModal
+          isOpen={showWelcome}
+          onClose={() => setShowWelcome(false)}
         />
-        <CelebrationModal 
-          isOpen={showCelebration} 
+        <CelebrationModal
+          isOpen={showCelebration}
           onClose={() => setShowCelebration(false)}
           message={celebrationMessage}
         />
